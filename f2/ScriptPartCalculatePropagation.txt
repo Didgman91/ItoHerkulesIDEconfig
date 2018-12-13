@@ -20,7 +20,7 @@ Do j,1,max
  ax(1:sam,1:sam)=Cmplx[1,0]
  Grid ax,p1,p2,p3,p4
  
- x=xALL(:,j)
+ x=xAll(:,j)
  y=yAll(:,j)
  Sphere ax,x,y,d/2,d/2,nwasser,0,lam
 
@@ -42,8 +42,10 @@ Do j,1,max
 ! If MOD[j,5] .eq. 1
 ! If j .EQ. 1
    intensityOrg=Intensity a2
-
+   argumentOrg=Arg a2
+   
    intensity=ArrayResize2D intensityOrg, ePixelX,ePixelY
+   agument=ArrayResize2D argumentOrg, ePixelX, ePixelY
    
    !feldMX=MirrorX intensity 
    !feldMY=MirrorY intensity  
@@ -64,6 +66,15 @@ Do j,1,max
    
    BMPPlot intensity, ePixelX, ePixelY
    BMPSave "{py_outputPath}/Intensity_{py_fileName}_layer", j
+   
+   BMPClear
+   
+   BMPInit ePixelX,ePixelY
+   BMPSetPen 255,255,255
+   BMPSetPen2 128,128,128
+   
+   BMPPlot agument, ePixelX, ePixelY
+   BMPSave "{py_outputPath}/Argument_{py_fileName}_layer", j
    
    BMPClear
    
@@ -91,23 +102,23 @@ Do j,1,max
 EndDo ! j
 
  
-BMPInit 850,700
-BMPSetPen 255,255,255
-BMPSetPen2 128,128,128
+!BMPInit 850,700
+!BMPSetPen 255,255,255
+!BMPSetPen2 128,128,128
 
-BMPColorMap BW
-BMPSetWin 10,10,310,300, 1,1,sam,sam
-BMPListPlot1d erg1,"GesamtEnergie Feld","z","Efeld"
+!BMPColorMap BW
+!BMPSetWin 10,10,310,300, 1,1,sam,sam
+!BMPListPlot1d erg1,"GesamtEnergie Feld","z","Efeld"
 
-BMPSetWin 450,10,750,310, 1,1,3,3
-BMPListPlot1d erg2,"Energie Pupille","z","Epup"
+!BMPSetWin 450,10,750,310, 1,1,3,3
+!BMPListPlot1d erg2,"Energie Pupille","z","Epup"
 
-BMPSetWin 10,360,310,660, 1,1,sam,sam
-BMPListPlot1d2 erg3,erg4,"Koll./Diff. Transmission","z","T"
+!BMPSetWin 10,360,310,660, 1,1,sam,sam
+!BMPListPlot1d2 erg3,erg4,"Koll./Diff. Transmission","z","T"
 
-BMPSetWin 450,360,750,660, 1,1,3,3
-BMPListPlot1d erg5,"Transmission","z","T"
+!BMPSetWin 450,360,750,660, 1,1,3,3
+!BMPListPlot1d erg5,"Transmission","z","T"
 
-BMPSave "{py_outputPath}/nebel_{py_fileName}_.bmp"
+!BMPSave "{py_outputPath}/nebel_{py_fileName}_.bmp"
 
 End 
