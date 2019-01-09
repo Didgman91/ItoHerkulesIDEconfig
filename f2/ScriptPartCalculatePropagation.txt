@@ -12,40 +12,45 @@ erg3(1:max)=0.0
 erg4(1:max)=0.0
 erg5(1:max)=0.0
 
-xAll=Load "{py_scatterPlateRandomX}"
-yAll=Load "{py_scatterPlateRandomY}"
+!xAll=Load "{py_scatterPlateRandomX}"
+!yAll=Load "{py_scatterPlateRandomY}"
 
 Do j,1,max
  
  ax(1:sam,1:sam)=Cmplx[1,0]
  Grid ax,p1,p2,p3,p4
  
- x=xAll(:,j)
- y=yAll(:,j)
- Sphere ax,x,y,d/2,d/2,nwasser,0,lam
+ !x=xAll(:,j)
+ !y=yAll(:,j)
+ !Sphere ax,x,y,d/2,d/2,nwasser,0,lam
 
  If j .EQ. 1 ! gilt nur fuer erste Schicht
    ax(1:sam,1:sam)=Cmplx[1,0]
-   PupilFilter ax,obj 
-   Grid ax,p1,p2,p3,p4  
-   a2=Illumination ax,PlaneWave, 1,0, 0,0,lam ! Beleuchtung mit Planwelle 
-   !a2=Illumination ax,Gauss, 1,0,  10*mm , 10*mm,0,0, lam ! (x,y,z sind shift-Werte) ! Beleuchtung miauss
-   !a2=Illumination ax,AGauss, 1,0,  10*mm,20*mm , 10*mm,0,0, lam ! (x,y,z sind shift-Werte) ! eleuchtunmit Gauss",
-   !PlotArray Abs[a2],"Objekt",400,400
+   !PupilFilter ax,obj 
+   
+   Grid ax,p1,p2,p3,p4
+   !a2=Illumination ax,PlaneWave, 1,0, 0,0,lam ! Beleuchtung mit Planwelle
+
+   !a=IPupil a1, lam, px,py [,na]
+   na=dp/dist
+   ? "NA: ",'(F0.7)'na
+   aBuffer=IPupil ax, lam, dp,dp, 0.0001
+   
+   a2=Shift aBuffer, {py_point_source_xpos},{py_point_source_ypos}
  Else
    PupilFilter a2,ax ! ab zweiter Schicht, belegt Array mit Filter
  EndIf
 
- PwPropagationNF a2,lam,dp,dp,1,x0 ! Propagiert Feld a2 mit FFT-Beampropagation
+! PwPropagationNF a2,lam,dp,dp,1,x0 ! Propagiert Feld a2 mit FFT-Beampropagation
  
 
 ! If MOD[j,5] .eq. 1
 ! If j .EQ. 1
-   intensityOrg=Intensity a2
-   argumentOrg=Arg a2
+   intensity=Intensity a2
+   argument=Arg a2
    
-   intensity=ArrayResize2D intensityOrg, ePixelX,ePixelY
-   agument=ArrayResize2D argumentOrg, ePixelX, ePixelY
+   !intensity=ArrayResize2D intensityOrg, ePixelX,ePixelY, 10
+   !argument=ArrayResize2D argumentOrg, ePixelX, ePixelY, 10
    
    !feldMX=MirrorX intensity 
    !feldMY=MirrorY intensity  
@@ -73,7 +78,7 @@ Do j,1,max
    BMPSetPen 255,255,255
    BMPSetPen2 128,128,128
    
-   BMPPlot agument, ePixelX, ePixelY
+   BMPPlot argument, ePixelX, ePixelY
    BMPSave "{py_outputPath}/Argument_{py_fileName}_layer", j
    
    BMPClear
@@ -81,6 +86,8 @@ Do j,1,max
    !SaveNPY "{py_outputPath}/Feld_{py_fileName}_", feld, j
    !SaveNPY "{py_outputPath}/Intensity_{py_fileName}_layer", intensity, j
 ! EndIf
+
+PwPropagationNF a2,lam,dp,dp,1,x0 ! Propagiert Feld a2 mit FFT-Beampropagation
  
  a0=EnergyDensity a2
  b=Pupil a2,lam,dp,dp,1 ! FourierTransfo
