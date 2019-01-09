@@ -14,6 +14,7 @@ Date: 2018.08.21
 
 from __future__ import print_function
 
+from keras.optimizers import Adam
 from keras.models import Model
 from keras.layers import Input
 from keras.layers import MaxPooling2D
@@ -248,3 +249,26 @@ class model_deep_specle_correlation_class(base_model_class):
         model = Model(inputs=inputs, outputs=conv11)
 
         return model
+
+    def get_optimizer(self, parameter=[]):
+        adam = []
+
+        if parameter != []:
+            fit_epochs = parameter[0]
+
+            adam = Adam(
+                    lr=0.001,
+                    beta_1=0.9,
+                    beta_2=0.999,
+                    epsilon=None,
+                    decay=0.001 / fit_epochs,
+                    amsgrad=False)
+        else:
+            adam = Adam(
+                    lr=0.001,
+                    beta_1=0.9,
+                    beta_2=0.999,
+                    epsilon=None,
+                    amsgrad=False)
+
+        return adam

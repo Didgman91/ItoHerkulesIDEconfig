@@ -21,3 +21,13 @@ class base_model_class():
         """
         raise NotImplementedError("Should have implemented function \
                                   get_model()")
+
+    @abc.abstractmethod
+    def get_optimizer(self, parameter=[]):
+        """
+        Returns
+        ----
+            the model
+        """
+        raise NotImplementedError("Sould have implemented function \
+                                  get_optimizer()")
