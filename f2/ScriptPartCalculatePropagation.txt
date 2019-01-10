@@ -33,6 +33,17 @@ Do j,1,max
 
    !a=IPupil a1, lam, px,py [,na]
    na=dp/dist
+   ! --- shift illumination ---
+   !aShiftPoint(1:sam, 1:sam)=Cmplx[0,0]
+   !Grid aShiftPoint,p1,p2,p3,p4
+   !GridSet aShiftPoint,{py_point_source_xpos}*mm,{py_point_source_ypos}*mm,Cmplx[1,0]
+   
+   !aShift=Pupil aShiftPoint, lam, dp, dp
+
+   !a=ax*aShift
+   
+   radius=5*mm
+   na=0.61*lam/radius
    ? "NA: ",'(F0.7)'na
    aBuffer=IPupil ax, lam, dp,dp, 0.0001
    
