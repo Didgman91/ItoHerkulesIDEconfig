@@ -1,3 +1,5 @@
+!------------------------------------------------------------------------------
+
 ? " "
 ? "IFeld     ","Ip        ","Tk        ","Td        ","Ttot"
 ? "--------------------------------------------------------------------"
@@ -12,93 +14,72 @@ erg3(1:max)=0.0
 erg4(1:max)=0.0
 erg5(1:max)=0.0
 
-!xAll=Load "{py_scatterPlateRandomX}"
-!yAll=Load "{py_scatterPlateRandomY}"
-
-Do j,1,max
+xAll=Load "{py_scatterPlateRandomX}"
+yAll=Load "{py_scatterPlateRandomY}"
  
+Do j,1,max
  ax(1:sam,1:sam)=Cmplx[1,0]
  Grid ax,p1,p2,p3,p4
  
- !x=xAll(:,j)
- !y=yAll(:,j)
- !Sphere ax,x,y,d/2,d/2,nwasser,0,lam
+ x=xAll(:,j)
+ y=yAll(:,j)
+ Sphere ax,x,y,d/2,d/2,nwasser,0,lam
 
  If j .EQ. 1 ! gilt nur fuer erste Schicht
-   ax(1:sam,1:sam)=Cmplx[1,0]
+    ax(1:sam,1:sam)=Cmplx[1,0]
+    Grid ax,p1,p2,p3,p4  
+    
+    ! --- shift illumination ---
+    aShiftPoint(1:sam, 1:sam)=Cmplx[0,0]
+    Grid aShiftPoint,p1,p2,p3,p4
+    GridSet aShiftPoint,{py_point_source_xpos}*mm,{py_point_source_ypos}*mm,Cmplx[1,0]
+   
+    aShift=Pupil aShiftPoint, lam, dp, dp
+
+    ax=ax*aShift
+    ! ~~~ shift illumination ~~~
+    
+    radius=5*mm
+    !na=0.61*lam/radius
+    na=0.0004999999375000116
+    ? "NA: ",'(F0.7)'na
+    a2=IPupil ax, lam, dp,dp, na
+
+    
+   
+   !ax(1:sam,1:sam)=Cmplx[0,0]
    !PupilFilter ax,obj 
+   !Grid ax,p1,p2,p3,p4  
+   !Circle ax, 0,0, dp/4,dp/4, 1
+   !a2=Illumination ax,PlaneWave, 1,0, 0,0,lam ! Beleuchtung mit Planwelle 
    
-   Grid ax,p1,p2,p3,p4
-   !a2=Illumination ax,PlaneWave, 1,0, 0,0,lam ! Beleuchtung mit Planwelle
-
-   !a=IPupil a1, lam, px,py [,na]
-   na=dp/dist
-   ! --- shift illumination ---
-   !aShiftPoint(1:sam, 1:sam)=Cmplx[0,0]
-   !Grid aShiftPoint,p1,p2,p3,p4
-   !GridSet aShiftPoint,{py_point_source_xpos}*mm,{py_point_source_ypos}*mm,Cmplx[1,0]
-   
-   !aShift=Pupil aShiftPoint, lam, dp, dp
-
-   !a=ax*aShift
-   
-   radius=5*mm
-   na=0.61*lam/radius
-   ? "NA: ",'(F0.7)'na
-   aBuffer=IPupil ax, lam, dp,dp, 0.0001
-   
-   a2=Shift aBuffer, {py_point_source_xpos},{py_point_source_ypos}
+   PwPropagationNF a2,lam,dp,dp,0,x0/10 ! Propagiert Feld a2 mit FFT-Beampropagation
  Else
    PupilFilter a2,ax ! ab zweiter Schicht, belegt Array mit Filter
+   
+   PwPropagationNF a2,lam,dp,dp,0,x0 ! Propagiert Feld a2 mit FFT-Beampropagation
  EndIf
-
-! PwPropagationNF a2,lam,dp,dp,1,x0 ! Propagiert Feld a2 mit FFT-Beampropagation
  
+    intensity=Intensity a2
+    argument=Arg a2
 
-! If MOD[j,5] .eq. 1
-! If j .EQ. 1
-   intensity=Intensity a2
-   argument=Arg a2
+    BMPInit ePixelX,ePixelY
+    BMPSetPen 255,255,255
+    BMPSetPen2 128,128,128
    
-   !intensity=ArrayResize2D intensityOrg, ePixelX,ePixelY, 10
-   !argument=ArrayResize2D argumentOrg, ePixelX, ePixelY, 10
+    BMPPlot intensity, ePixelX, ePixelY
+    BMPSave "{py_outputPath}/Intensity_{py_fileName}_layer", j
    
-   !feldMX=MirrorX intensity 
-   !feldMY=MirrorY intensity  
-   !feldMYR90=Rotate90 feldMY
-
-   !BMPInit ePixelX,ePixelY
-   !BMPSetPen 255,255,255
-   !BMPSetPen2 128,128,128
+    BMPClear
    
-   !BMPPlot feld, ePixelX, ePixelY
-   !BMPSave "{py_outputPath}/Feld_{py_fileName}_.bmp"
-
-   !BMPClear
-
-   BMPInit ePixelX,ePixelY
-   BMPSetPen 255,255,255
-   BMPSetPen2 128,128,128
+    BMPInit ePixelX,ePixelY
+    BMPSetPen 255,255,255
+    BMPSetPen2 128,128,128
    
-   BMPPlot intensity, ePixelX, ePixelY
-   BMPSave "{py_outputPath}/Intensity_{py_fileName}_layer", j
+    BMPPlot argument, ePixelX, ePixelY
+    BMPSave "{py_outputPath}/Argument_{py_fileName}_layer", j
    
-   BMPClear
-   
-   BMPInit ePixelX,ePixelY
-   BMPSetPen 255,255,255
-   BMPSetPen2 128,128,128
-   
-   BMPPlot argument, ePixelX, ePixelY
-   BMPSave "{py_outputPath}/Argument_{py_fileName}_layer", j
-   
-   BMPClear
-   
-   !SaveNPY "{py_outputPath}/Feld_{py_fileName}_", feld, j
-   !SaveNPY "{py_outputPath}/Intensity_{py_fileName}_layer", intensity, j
-! EndIf
-
-PwPropagationNF a2,lam,dp,dp,1,x0 ! Propagiert Feld a2 mit FFT-Beampropagation
+    BMPClear
  
  a0=EnergyDensity a2
  b=Pupil a2,lam,dp,dp,1 ! FourierTransfo
@@ -118,25 +99,3 @@ PwPropagationNF a2,lam,dp,dp,1,x0 ! Propagiert Feld a2 mit FFT-Beampropagation
  ? '(F0.7)'erg1(j),'(1X,E9.2)'erg2(j),'(2X,F0.7)'erg3(j),'(2X,F0.7)'erg4(j),'(2X,F0.7)'erg5(j)
 
 EndDo ! j
-
- 
-!BMPInit 850,700
-!BMPSetPen 255,255,255
-!BMPSetPen2 128,128,128
-
-!BMPColorMap BW
-!BMPSetWin 10,10,310,300, 1,1,sam,sam
-!BMPListPlot1d erg1,"GesamtEnergie Feld","z","Efeld"
-
-!BMPSetWin 450,10,750,310, 1,1,3,3
-!BMPListPlot1d erg2,"Energie Pupille","z","Epup"
-
-!BMPSetWin 10,360,310,660, 1,1,sam,sam
-!BMPListPlot1d2 erg3,erg4,"Koll./Diff. Transmission","z","T"
-
-!BMPSetWin 450,360,750,660, 1,1,3,3
-!BMPListPlot1d erg5,"Transmission","z","T"
-
-!BMPSave "{py_outputPath}/nebel_{py_fileName}_.bmp"
-
-End 
