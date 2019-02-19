@@ -80,7 +80,7 @@ Do j,1,max
     a0=EnergyDensity a2
     b=Pupil a2,lam,dp,dp,1 ! FourierTransfo
      
-    c0=IntegralIntensity b  ! Gesamtintensit√§t
+    c0=IntegralIntensity b  ! Gesamtintensit‰t
     d0=Intensity[b(#+1,#+1)]    ! Kollimierte Transmission
     b(#+1,#+1)=Cmplx[0]
     e0=IntegralIntensity b  ! Diffuse Transmission 
